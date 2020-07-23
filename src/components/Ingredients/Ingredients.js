@@ -23,6 +23,10 @@ function Ingredients() {
       })
   }, []);
 
+  useEffect(() => {
+    console.log("RENDERING INGREDIENTS", ingredients);
+  }, [ingredients])
+
   const addIngredientHandler = (ingredient) => {
     fetch(`https://react-hooks-d11f7.firebaseio.com/ingredients.json`,
       {
