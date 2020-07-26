@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useReducer } from 'react';
+import React, { useState, useEffect, useCallback, useReducer, useMemo } from 'react';
 
 import IngredientForm from './IngredientForm';
 import IngredientList from './IngredientList';
@@ -45,7 +45,7 @@ function Ingredients() {
     console.log("RENDERING INGREDIENTS", ingredients);
   }, [ingredients])
 
-  const addIngredientHandler = (ingredient) => {
+  const addIngredientHandler = useCallback((ingredient) => {
     setIsLoading(true);
     fetch(`https://react-hooks-d11f7.firebaseio.com/ingredients.json`,
       {
@@ -65,7 +65,7 @@ function Ingredients() {
         // dispatch({ type: 'ADD', 
         // ingredient: { id: data.name, ...ingredient } })
       })
-  }
+  }, [])
 
 
   const filteredIngredientsHandler = useCallback(filteredIngredients => {
@@ -73,7 +73,7 @@ function Ingredients() {
     // dispatch({ type: 'SET', ingredients: filteredIngredients });
   }, []);
 
-  const removeIngredientHandler = ingredientId => {
+  const removeIngredientHandler = useCallback(ingredientId => {
     setIsLoading(true);
     fetch(`https://react-hooks-d11f7.firebaseio.com/ingredients/${ingredientId}.json`,
       {
@@ -87,12 +87,21 @@ function Ingredients() {
         setError(error.message)
       });
 
-  }
+  }, []);
 
-  const clearError = () => {
+  const clearError = useCallback(() => {
     setError(null);
     setIsLoading(false);
-  }
+  }, []);
+
+  const ingredientList = useMemo(() => {
+    return (
+      <IngredientList
+        ingredients={ingredients}
+        onRemoveItem={removeIngredientHandler}
+      />
+    )
+  }, [ingredients, removeIngredientHandler]);
 
   return (
     <div className="App">
@@ -102,10 +111,7 @@ function Ingredients() {
 
       <section>
         <Search onLoadIngredients={filteredIngredientsHandler} />
-        <IngredientList
-          ingredients={ingredients}
-          onRemoveItem={removeIngredientHandler}
-        />
+        {ingredientList}
       </section>
     </div>
   );
